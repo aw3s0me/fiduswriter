@@ -79,7 +79,7 @@ class CommentFilter():
         """
         return user_rights_str == 'reader'
 
-    def _can_be_visisble_self(self, user_id):
+    def _can_be_visible_self(self, user_id):
         """
         Checks if it is the same user. user must see its own comments
         :param user_id:
@@ -109,7 +109,7 @@ class CommentFilter():
             user_id = comment['user']
 
             #own user always can see his own comment
-            if self._can_be_visisble_self(user_id):
+            if self._can_be_visible_self(user_id):
                 filtered_comments[comment_id] = comment
                 continue
 
@@ -125,10 +125,10 @@ class CommentFilter():
             # readers can leave comments in publication phase
             if self._is_reader(user_rights_str):
                 #TODO: leave in publication
-                #if cur_phase == 'publication':
-                #    filtered_comments[comment_id] = comment
+                if cur_phase == 'publication':
+                    filtered_comments[comment_id] = comment
                 #TODO: or leave any phase?
-                filtered_comments[comment_id] = comment
+                #filtered_comments[comment_id] = comment
                 continue
 
             if self._can_be_visible_rest(user_rights_str, cur_phase):
@@ -158,6 +158,8 @@ class CommentFilter():
         if self.user_info.is_owner == True or \
                 (self.right_name == 'reader' and cur_phase == 'publication'):
             return comments
+        elif self.right_name == 'reader':
+            return {}
 
         filtered_comments = self._fill_comments_dict(comments,
                                                      access_rights_dict,

@@ -69,20 +69,51 @@ class CommentFilterTestCase(TestCase):
     def _get_usernames_in_comments(self, filtered_comments):
         return set([filtered_comments[val]['userName'] for i,val in enumerate(filtered_comments)])
 
-    def test_reader_rights(self):
+    def _test_reader_rights(self):
         user, user_info = self._init_user('reader1', 'r')
+        cur_phase = 'publication'
 
         filter = CommentFilter(user_info)
-        filtered_comments = filter.filter_comments_by_role(self.comments, 'editing', self.access_rights)
-        print "Number of comments " + str(len(filtered_comments))
-
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
         usernames = self._get_usernames_in_comments(filtered_comments)
-        expected = {'reader1', 'reader2', 'user1', 'user2'}
-        self.assertEqual(expected, usernames, 'Reader in editing phase ok')
+        #in publication phase. reader can read all comments
+        expected = {u'alex', u'reader1', u'reader2', u'user1', u'reviewer2', u'reviewer1', u'editor2', u'editor1', u'author1', u'user2'}
+        self.assertEqual(expected, usernames, 'Reader in {0} phase ok'.format(cur_phase))
+
+        cur_phase = 'editing'
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertTrue(len(usernames) == 0)
+
 
     def test_author_rights(self):
         user, user_info = self._init_user('author1', 'w')
         filter = CommentFilter(user_info)
-        filtered_comments = filter.filter_comments_by_role(self.comments, 'editing', self.access_rights)
-        print "Number of comments" + str(len(filtered_comments))
-        self.assertEqual(len(filtered_comments), 4, 'Author ok')
+        cur_phase = 'editing'
+        #alex - because he is owner. we evaluate owner as author
+        expected = {'author1', 'alex'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertEqual(expected, usernames, 'Author in {0} phase ok'.format(cur_phase))
+
+        cur_phase = 'publication'
+        expected = {'author1', 'alex', u'reader1', u'reader2', u'user1', 'user2'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+
+        self.assertEqual(expected, usernames, 'Author in {0} phase ok'.format(cur_phase))
+
+        cur_phase = 'revision'
+        expected = {'author1', 'alex'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+
+        self.assertEqual(expected, usernames, 'Author in {0} phase ok'.format(cur_phase))
