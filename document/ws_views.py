@@ -3,7 +3,7 @@ import atexit
 import random
 
 from document.helpers.session_user_info import SessionUserInfo
-from document.helpers.filtering_comments import filter_comments_by_role
+from document.helpers.filtering_comments import CommentFilter
 from ws.base import BaseWebSocketHandler
 from logging import info, error
 from tornado.escape import json_decode, json_encode
@@ -20,7 +20,6 @@ class DocumentWS(BaseWebSocketHandler):
         current_user = self.get_current_user()
         self.user_info = SessionUserInfo()
         doc_db, can_access = self.user_info.init_access(document_id, current_user)
-
 
         if can_access:
             if doc_db.id in DocumentWS.sessions:
@@ -74,12 +73,10 @@ class DocumentWS(BaseWebSocketHandler):
         document_owner = self.doc['db'].owner
         access_rights =  get_accessrights(AccessRight.objects.filter(document__owner=document_owner))
         response['document']['access_rights'] = access_rights
+        self.comment_filter = CommentFilter(self.user_info)
+        filtered_comments = self.comment_filter.filter_comments_by_role(DocumentWS.sessions[self.user_info.document_id]["comments"], 'editing', access_rights)
 
-        #TODO: switch on filtering when choose workflow and have UI for assigning roles to users
-        #filtered_comments = filter_comments_by_role(DocumentWS.sessions[self.user_info.document_id]["comments"], access_rights, 'editing', self.user_info)
-        print self.doc["comments"]
-        response['document']['comments']=self.doc["comments"]
-        #response['document']['comments'] = filtered_comments
+        response['document']['comments'] = filtered_comments
         response['document']['comment_version']=self.doc["comment_version"]
         response['document']['access_rights'] = get_accessrights(AccessRight.objects.filter(document__owner=document_owner))
         response['document']['owner'] = dict()

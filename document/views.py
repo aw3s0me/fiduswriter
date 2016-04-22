@@ -39,7 +39,7 @@ from django.db.models import Q
 
 from django.core.serializers.python import Serializer
 from document.rdf import RDFBuilder
-from document.helpers.filtering_comments import filter_comments_by_role
+from document.helpers.filtering_comments import CommentFilter
 from document.helpers.session_user_info import SessionUserInfo
 
 import json
@@ -72,7 +72,8 @@ def get_document__and_comments(document_id, user):
 
     comments_content = json.loads(document.comments)
     access_rights =  get_accessrights(AccessRight.objects.filter(document__owner=document.owner))
-    filtered = filter_comments_by_role(comments_content, access_rights, 'editing', user_info)
+    comment_filter = CommentFilter(access_rights, user_info)
+    filtered = comment_filter.filter_comments_by_role(comments_content, 'editing', access_rights)
     return (document, filtered)
 
 def get_accessrights(ars):

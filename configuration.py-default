@@ -80,7 +80,8 @@ VISIBILITY = {
     'editor':   {'author':   ['revision', 'publication'],
                  'reviewer': ['always'],
                  'all_rev':  ['always'],
-                 'editor':   ['always']}
+                 'editor':   ['always']},
+    'reader':   {}
 }
 
 INSTALLED_APPS += (
