@@ -69,7 +69,7 @@ class CommentFilterTestCase(TestCase):
     def _get_usernames_in_comments(self, filtered_comments):
         return set([filtered_comments[val]['userName'] for i,val in enumerate(filtered_comments)])
 
-    def _test_reader_rights(self):
+    def test_reader_rights(self):
         user, user_info = self._init_user('reader1', 'r')
         cur_phase = 'publication'
 
@@ -86,7 +86,6 @@ class CommentFilterTestCase(TestCase):
             (self.comments, cur_phase, self.access_rights)
         usernames = self._get_usernames_in_comments(filtered_comments)
         self.assertTrue(len(usernames) == 0)
-
 
     def test_author_rights(self):
         user, user_info = self._init_user('author1', 'w')
@@ -117,3 +116,27 @@ class CommentFilterTestCase(TestCase):
         usernames = self._get_usernames_in_comments(filtered_comments)
 
         self.assertEqual(expected, usernames, 'Author in {0} phase ok'.format(cur_phase))
+
+    def test_reviewer_rights_discussion(self):
+        user, user_info = self._init_user('reviewer1', 'c')
+        filter = CommentFilter(user_info)
+        cur_phase = 'discussion'
+        #alex - because he is owner. we evaluate owner as author
+        expected = {'reviewer1', 'reviewer2', 'editor1', 'editor2'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertEqual(expected, usernames, 'Reviewer in {0} phase ok'.format(cur_phase))
+
+    def test_reviewer_rights_revision(self):
+        user, user_info = self._init_user('reviewer1', 'c')
+        filter = CommentFilter(user_info)
+        cur_phase = 'revision'
+        #alex - because he is owner. we evaluate owner as author
+        expected = {'reviewer1', 'reviewer2', 'editor1', 'editor2', 'author1', 'alex'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertEqual(expected, usernames, 'Reviewer in {0} phase ok'.format(cur_phase))
