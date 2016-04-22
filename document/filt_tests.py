@@ -140,3 +140,27 @@ class CommentFilterTestCase(TestCase):
             (self.comments, cur_phase, self.access_rights)
         usernames = self._get_usernames_in_comments(filtered_comments)
         self.assertEqual(expected, usernames, 'Reviewer in {0} phase ok'.format(cur_phase))
+
+    def test_editor_rights_revision(self):
+        user, user_info = self._init_user('editor1', 'e')
+        filter = CommentFilter(user_info)
+        cur_phase = 'revision'
+        #alex - because he is owner. we evaluate owner as author
+        expected = {'reviewer1', 'reviewer2', 'editor1', 'editor2', 'author1', 'alex'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertEqual(expected, usernames, 'Editor in {0} phase ok'.format(cur_phase))
+
+    def test_editor_rights_discussion(self):
+        user, user_info = self._init_user('editor1', 'e')
+        filter = CommentFilter(user_info)
+        cur_phase = 'discussion'
+        #alex - because he is owner. we evaluate owner as author
+        expected = {'reviewer1', 'reviewer2', 'editor1', 'editor2'}
+
+        filtered_comments = filter.filter_comments_by_role\
+            (self.comments, cur_phase, self.access_rights)
+        usernames = self._get_usernames_in_comments(filtered_comments)
+        self.assertEqual(expected, usernames, 'Editor in {0} phase ok'.format(cur_phase))
