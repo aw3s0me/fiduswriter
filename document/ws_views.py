@@ -20,6 +20,7 @@ class DocumentWS(BaseWebSocketHandler):
         current_user = self.get_current_user()
         self.user_info = SessionUserInfo()
         doc_db, can_access = self.user_info.init_access(document_id, current_user)
+        self.cur_phase = 'editing'
 
         if can_access:
             if doc_db.id in DocumentWS.sessions:
@@ -74,7 +75,7 @@ class DocumentWS(BaseWebSocketHandler):
         access_rights =  get_accessrights(AccessRight.objects.filter(document__owner=document_owner))
         response['document']['access_rights'] = access_rights
         self.comment_filter = CommentFilter(self.user_info)
-        filtered_comments = self.comment_filter.filter_comments_by_role(DocumentWS.sessions[self.user_info.document_id]["comments"], 'editing', access_rights)
+        filtered_comments = self.comment_filter.filter_comments_by_role(DocumentWS.sessions[self.user_info.document_id]["comments"], self.cur_phase, access_rights)
 
         response['document']['comments'] = filtered_comments
         response['document']['comment_version']=self.doc["comment_version"]
