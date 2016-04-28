@@ -28,3 +28,4 @@ static-es5/
 *.es5.js
 semantic/helpers/soz_lookup.json
 semantic/helpers/thesoz_0_93.ttl
+semantic/helpers/thesoz_0_93.zip
