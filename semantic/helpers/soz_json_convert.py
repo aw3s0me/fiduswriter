@@ -5,8 +5,10 @@ import re
 import json
 import urllib
 import zipfile
+import os
 
 thesoz_ns = Namespace("http://lod.gesis.org/thesoz/ext/")
+thesoz_ttl_location = '../static/ttl/'
 
 def download_thesoz():
     thesoz_addr = 'http://www.etracker.de/lnkcnt.php?et=qPKGYV&url=http://www.gesis.org/fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip&lnkname=fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip'
@@ -16,15 +18,26 @@ def download_thesoz():
 
     fh = open(zip_file_name, 'rb')
     z = zipfile.ZipFile(fh)
-    z.extractall()
+    z.extract('thesoz_0_93.ttl', thesoz_ttl_location)
     fh.close()
+
+    os.remove(zip_file_name)
+
+def remove_illegal(ttl):
+    regex_remove_illegal_str = re.compile(ur'(skos:prefLabel|dc:creator|cc:attributionName|skos:definition|dc:publisher|de\s+,{1})\s{1}".*(\n{1}).*"@', re.UNICODE)
+    result = re.sub(regex_remove_illegal_str, lambda m: m.group(0).replace('\n',' '), ttl)
+
+    return result
 
 download_thesoz()
 
 g = Graph()
 
-skos_ttl = open('thesoz_0_93.ttl', 'r')
-result = g.parse(skos_ttl, format='turtle')
+skos_ttl = open(thesoz_ttl_location + 'thesoz_0_93.ttl', 'r')
+ttl_str = skos_ttl.read()
+ttl_str = remove_illegal(ttl_str)
+
+result = g.parse(data=ttl_str, format='turtle')
 
 query = """
         PREFIX thesoz: <http://lod.gesis.org/thesoz/ext/>
@@ -49,5 +62,5 @@ for row in query_res:
 
 skos_ttl.close()
 
-with open('soz_lookup.json', 'w') as fp:
+with open('../static/json/soz_lookup.json', 'w') as fp:
     json.dump(final_json, fp)

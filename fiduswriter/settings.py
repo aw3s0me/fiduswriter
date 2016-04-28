@@ -214,6 +214,7 @@ INSTALLED_APPS = (
     'bibliography',
     'usermedia',
     'user',
+    'semantic',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

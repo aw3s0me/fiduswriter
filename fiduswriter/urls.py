@@ -49,11 +49,8 @@ urlpatterns = [
     # I18n manual language switcher
     url('^i18n/', include('django.conf.urls.i18n')),
 
-
-
     # I18n Javascript translations
     url('^jsi18n/$', i18n_javascript_catalog, js_info_dict),
-
 
     # Login / logout.
     url('^login/$', login_view),
@@ -74,6 +71,9 @@ urlpatterns = [
 
     # Feedback
     url('^feedback/', include('feedback.urls')),
+
+    # Semantic Features (Annotations)
+    url('^semantic/', include('semantic.urls')),
 
     # Terms and conditions
     url('^terms/$', flatpages_views.flatpage, {'url': '/terms/'}, name='terms'),
