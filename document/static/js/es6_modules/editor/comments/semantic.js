@@ -21,7 +21,7 @@ export class ModCommentSemantic {
      */
     downloadMeta() {
         jQuery.get('/static/json/soz_lookup.json', data => {
-            this.autoList = Object.keys(data).map(key => { return key + " : " + data[key] })
+            this.autoList = Object.keys(data).map(key => { return { 'value' : key, 'label' : key + '.' + data[key] } })
         }, "json")
         .fail(() => {
             alert("Error occured when downloading theSoz list")
@@ -37,15 +37,46 @@ export class ModCommentSemantic {
 
         jQuery.each(boxes, (index, box) => {
             let boxId = this.mod.interactions.getCommentId(box)
+            let self = this
 
             //if this id is already initialized. continue
             if (this.lookupDOM.hasOwnProperty(boxId)) {
                 return true
             }
 
-            this.lookupDOM[boxId] = $(box).find('.comment-tags').autocomplete({
-                source: this.autoList
-            })
+            this.lookupDOM[boxId] = $(box).find('.comment-tags')
+                //.autocomplete({
+                //    source: this.autoList
+                //})
+                .bind( "keydown", function( event ) {
+                    if ( event.keyCode === $.ui.keyCode.TAB &&
+                        $( this ).autocomplete( "instance" ).menu.active ) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    source: ( request, response ) => {
+                      // delegate back to autocomplete, but extract the last term
+                        response( $.ui.autocomplete.filter(
+                            this.autoList, this.extractLast( request.term ) ) );
+                    },
+                    focus: () => {
+                      // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function( event, ui ) {
+                        var terms = self.split( this.value );
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push( ui.item.value );
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push( "" );
+                        this.value = terms.join( "; " );
+                        return false;
+                    }}
+                )
+
         })
     }
 
@@ -63,6 +94,14 @@ export class ModCommentSemantic {
         delete this.lookupDOM[id]
 
         return true
+    }
+
+    split( val ) {
+      return val.split( /;\s*/ );
+    }
+
+    extractLast( term ) {
+      return this.split( term ).pop();
     }
 
 }
