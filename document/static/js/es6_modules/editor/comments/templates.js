@@ -79,6 +79,10 @@ let firstCommentTemplatePart =`
         <div class="comment-text-wrapper">
             <textarea class="commentText" data-id="<%= comment.id %>" rows="5"></textarea>
             <input class="comment-is-major" type="checkbox" name="isMajor" value="0" />`+gettext("Is major")+`<br />
+            <div class="comment-tag-box">
+                <span class="comment-tag-text">` + gettext("Tags: ") + `</span>
+                <input class="comment-tags" />
+            </div>
             <span class="submitComment fw-button fw-dark">` +
     gettext("Submit") +
     `</span>

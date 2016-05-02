@@ -21,9 +21,9 @@ export class ModCommentStore {
     }
 
     // Add a new comment to the comment database both remotely and locally.
-    addComment(user, userName, userAvatar, date, comment, answers, isMajor) {
+    addComment(user, userName, userAvatar, date, comment, answers, isMajor, tags) {
         let id = randomID()
-        this.addLocalComment(id, user, userName, userAvatar, date, comment, answers, isMajor)
+        this.addLocalComment(id, user, userName, userAvatar, date, comment, answers, isMajor, tags)
         this.unsent.push({
             type: "create",
             id: id
@@ -33,15 +33,15 @@ export class ModCommentStore {
         return id
     }
 
-    addLocalComment(id, user, userName, userAvatar, date, comment, answers, isMajor) {
+    addLocalComment(id, user, userName, userAvatar, date, comment, answers, isMajor, tags) {
         if (!this.comments[id]) {
-            this.comments[id] = new Comment(id, user, userName, userAvatar, date, comment, answers, isMajor)
+            this.comments[id] = new Comment(id, user, userName, userAvatar, date, comment, answers, isMajor, tags)
         }
         this.mod.layout.layoutComments()
     }
 
-    updateComment(id, comment, commentIsMajor) {
-        this.updateLocalComment(id, comment, commentIsMajor)
+    updateComment(id, comment, commentIsMajor, tags) {
+        this.updateLocalComment(id, comment, commentIsMajor, tags)
         this.unsent.push({
             type: "update",
             id: id
@@ -49,10 +49,11 @@ export class ModCommentStore {
         this.signal("mustSend")
     }
 
-    updateLocalComment(id, comment, commentIsMajor) {
+    updateLocalComment(id, comment, commentIsMajor, tags) {
         if (this.comments[id]) {
             this.comments[id].comment = comment
             this.comments[id]['review:isMajor'] = commentIsMajor
+            this.comments[id].tags = tags
         }
         this.mod.layout.layoutComments()
     }
@@ -259,9 +260,9 @@ export class ModCommentStore {
             if (event.type == "delete") {
                 this.deleteLocalComment(event.id)
             } else if (event.type == "create") {
-                this.addLocalComment(event.id, event.user, event.userName, event.userAvatar, event.date, event.comment, event['review:isMajor'])
+                this.addLocalComment(event.id, event.user, event.userName, event.userAvatar, event.date, event.comment, event['review:isMajor'], {})
             } else if (event.type == "update") {
-                this.updateLocalComment(event.id, event.comment, event['review:isMajor'])
+                this.updateLocalComment(event.id, event.comment, event['review:isMajor'], {})
             } else if (event.type == "add_answer") {
                 this.addLocalAnswer(event.commentId, event)
             } else if (event.type == "remove_answer") {

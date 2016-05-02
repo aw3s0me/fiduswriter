@@ -145,3 +145,21 @@
 .comment-is-major-bgc {
     background-color: #f2dede;
 }
+
+.comment-tag-box {
+    margin-bottom: 7px;
+    display: inline-block;
+    width: 100%;
+}
+
+.comment-tag-box .comment-tag-text {
+    padding-top: 4px;
+    display: inherit;
+}
+
+.comment-tag-box .comment-tags {
+    float: right;
+    margin-right: 2px;
+}
+
+

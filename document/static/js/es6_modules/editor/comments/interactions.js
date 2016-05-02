@@ -101,9 +101,9 @@ export class ModCommentInteractions {
     }
 
 
-    updateComment(id, commentText, commentIsMajor) {
+    updateComment(id, commentText, commentIsMajor, tags) {
         // Save the change to a comment and mark that the document has been changed
-        this.mod.store.updateComment(id, commentText, commentIsMajor)
+        this.mod.store.updateComment(id, commentText, commentIsMajor, tags)
         this.mod.layout.deactivateAll()
         this.mod.layout.layoutComments()
     }
@@ -115,11 +115,11 @@ export class ModCommentInteractions {
         let commentIsMajor = jQuery(submitButton).siblings('.comment-is-major').prop('checked')
         let commentId = this.getCommentId(commentTextBox)
         if (commentText.length > 0) {
-            this.updateComment(commentId, commentText, commentIsMajor)
+            this.updateComment(commentId, commentText, commentIsMajor, tags={})
         } else {
             this.deleteComment(commentId)
         }
-
+        this.mod.semantic.removeTagBox(commentId)
     }
 
     cancelSubmitComment(cancelButton) {
@@ -132,6 +132,7 @@ export class ModCommentInteractions {
             } else {
                 this.mod.layout.deactivateAll()
             }
+            this.mod.semantic.removeTagBox(id)
         } else {
             this.mod.layout.deactivateAll()
         }

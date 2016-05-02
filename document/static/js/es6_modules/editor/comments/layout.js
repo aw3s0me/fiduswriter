@@ -174,16 +174,17 @@ export class ModCommentLayout {
             theComments,
             that
         })
+
         if (document.getElementById('comment-box-container').innerHTML !== commentsTemplateHTML) {
             document.getElementById('comment-box-container').innerHTML = commentsTemplateHTML
+            this.mod.semantic.initTagBoxes()
         }
-
 
         if (document.getElementById('active-comment-style').innerHTML != activeCommentStyle) {
             document.getElementById('active-comment-style').innerHTML = activeCommentStyle
         }
 
-        return function () {
+        return () => {
             // DOM read phase
             let totalOffset = document.getElementById('comment-box-container').getBoundingClientRect().top + 10,
               commentBoxes = document.querySelectorAll('#comment-box-container .comment-box'),
@@ -203,14 +204,14 @@ export class ModCommentLayout {
                     commentPlacementStyle += '.comment-box:nth-of-type('+(index+1)+') {margin-top: ' + topMargin + 'px;}\n'
                 }
                 totalOffset += commentBoxHeight + topMargin
+
             })
-            return function () {
+            return () => {
                 //DOM write phase
                 if (document.getElementById('comment-placement-style').innerHTML != commentPlacementStyle) {
                     document.getElementById('comment-placement-style').innerHTML = commentPlacementStyle
                 }
             }
-
         }
 
     }
