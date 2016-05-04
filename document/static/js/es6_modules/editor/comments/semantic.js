@@ -12,6 +12,8 @@ export class ModCommentSemantic {
         this.filter = []
         this.lookupFilter = {}
         this.lookupDOM = {}
+        this.autoList = []
+        this.origData = {}
 
         this.downloadMeta()
     }
@@ -21,6 +23,7 @@ export class ModCommentSemantic {
      */
     downloadMeta() {
         jQuery.get('/static/json/soz_lookup.json', data => {
+            this.origData = data
             this.autoList = Object.keys(data).map(key => { return { 'value' : key, 'label' : key + '.' + data[key] } })
         }, "json")
         .fail(() => {
@@ -30,7 +33,6 @@ export class ModCommentSemantic {
 
     /**
      * Initializing tag input box using jQueryUI autocomplete
-     * @todo complete method
      */
     initTagBoxes() {
         let boxes = jQuery('#comment-box-container').find('.active')
@@ -44,39 +46,35 @@ export class ModCommentSemantic {
                 return true
             }
 
-            this.lookupDOM[boxId] = $(box).find('.comment-tags')
-                //.autocomplete({
-                //    source: this.autoList
-                //})
+            this.lookupDOM[boxId] = jQuery(box).find('.comment-tags')
                 .bind( "keydown", function( event ) {
-                    if ( event.keyCode === $.ui.keyCode.TAB &&
-                        $( this ).autocomplete( "instance" ).menu.active ) {
-                        event.preventDefault();
+                    if ( event.keyCode === jQuery.ui.keyCode.TAB &&
+                        jQuery( this ).autocomplete( "instance" ).menu.active ) {
+                        event.preventDefault()
                     }
                 })
                 .autocomplete({
                     source: ( request, response ) => {
                       // delegate back to autocomplete, but extract the last term
-                        response( $.ui.autocomplete.filter(
-                            this.autoList, this.extractLast( request.term ) ) );
+                        response( jQuery.ui.autocomplete.filter(
+                            this.autoList, this.extractLast( request.term ) ) )
                     },
                     focus: () => {
                       // prevent value inserted on focus
                         return false;
                     },
                     select: function( event, ui ) {
-                        var terms = self.split( this.value );
+                        let terms = self.split( this.value )
                         // remove the current input
-                        terms.pop();
+                        terms.pop()
                         // add the selected item
-                        terms.push( ui.item.value );
+                        terms.push( ui.item.value )
                         // add placeholder to get the comma-and-space at the end
-                        terms.push( "" );
-                        this.value = terms.join( "; " );
-                        return false;
+                        terms.push( "" )
+                        this.value = terms.join( "; " )
+                        return false
                     }}
                 )
-
         })
     }
 
@@ -96,12 +94,48 @@ export class ModCommentSemantic {
         return true
     }
 
-    split( val ) {
-      return val.split( /;\s*/ );
+    /**
+     * Method to extract last term from autocomplete jquery input
+     * @param term
+     * @returns {T}
+     */
+    extractLast(term) {
+        return this.split( term ).pop()
     }
 
-    extractLast( term ) {
-      return this.split( term ).pop();
+    /**
+     * Method to separate values in input by ';' symbol
+     * @param val
+     */
+    split(val) {
+        return val.split( /;\s*/ )
     }
 
+    validateTags(tagsIds) {
+        for (let value in tagsIds) {
+            if (!value || value === "" || value === " ") {
+                continue
+            }
+
+            if (!this.origData.hasOwnProperty(value)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    getTagsFromHtml(id) {
+        if (!id || id === 0 || !this.lookupDOM.hasOwnProperty(id)) {
+            return []
+        }
+
+        let values = this.lookupDOM[id].val()
+        let terms = this.split(values)
+        if (!this.validateTags(terms)) {
+            return []
+        }
+
+        return terms
+    }
 }

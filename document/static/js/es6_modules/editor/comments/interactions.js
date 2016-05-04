@@ -100,7 +100,6 @@ export class ModCommentInteractions {
         this.mod.layout.layoutComments()
     }
 
-
     updateComment(id, commentText, commentIsMajor, tags) {
         // Save the change to a comment and mark that the document has been changed
         this.mod.store.updateComment(id, commentText, commentIsMajor, tags)
@@ -114,8 +113,9 @@ export class ModCommentInteractions {
         let commentText = commentTextBox.value
         let commentIsMajor = jQuery(submitButton).siblings('.comment-is-major').prop('checked')
         let commentId = this.getCommentId(commentTextBox)
+        let commentTags = this.mod.semantic.getTagsFromHtml(commentId)
         if (commentText.length > 0) {
-            this.updateComment(commentId, commentText, commentIsMajor, tags={})
+            this.updateComment(commentId, commentText, commentIsMajor, commentTags)
         } else {
             this.deleteComment(commentId)
         }
