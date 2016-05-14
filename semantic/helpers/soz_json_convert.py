@@ -12,6 +12,11 @@ thesoz_ttl_location = '../static/ttl/'
 thesoz_json_location = '../static/json/'
 
 def download_thesoz():
+    """
+    Download und unpack ttl file from gesis website
+    :return:
+    :rtype:
+    """
     thesoz_addr = 'http://www.etracker.de/lnkcnt.php?et=qPKGYV&url=http://www.gesis.org/fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip&lnkname=fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip'
     zip_file_name = 'thesoz_0_93.zip'
 
@@ -25,6 +30,13 @@ def download_thesoz():
     os.remove(zip_file_name)
 
 def remove_illegal(ttl):
+    """
+    Remove newlines between literals in ttl file by using regex
+    :param ttl: ttl file
+    :type ttl: str
+    :return:
+    :rtype:
+    """
     regex_remove_illegal_str = re.compile(ur'(skos:prefLabel|dc:creator|cc:attributionName|skos:definition|dc:publisher|de\s+,{1})\s{1}".*(\n{1}).*"@', re.UNICODE)
     result = re.sub(regex_remove_illegal_str, lambda m: m.group(0).replace('\n',' '), ttl)
 
@@ -40,6 +52,7 @@ ttl_str = remove_illegal(ttl_str)
 
 result = g.parse(data=ttl_str, format='turtle')
 
+#get only classes
 query = """
         PREFIX thesoz: <http://lod.gesis.org/thesoz/ext/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -58,13 +71,17 @@ final_json = dict()
 
 for row in query_res:
     res = re.search(regex_query, row[0])
+    #get class code from each class in classification and use it as a key
     class_code = res.group(0)
+    #value of dictionary - class name
     final_json[class_code] = row[1].value
 
 skos_ttl.close()
 
+#if the soz directory doesnt exist, create it
 if not os.path.exists(thesoz_json_location):
     os.makedirs(thesoz_json_location)
 
+#write json information to file which be used by client side
 with open(thesoz_json_location + 'soz_lookup.json', 'w') as fp:
     json.dump(final_json, fp)
