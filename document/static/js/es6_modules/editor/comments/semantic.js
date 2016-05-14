@@ -40,13 +40,17 @@ export class ModCommentSemantic {
         jQuery.each(boxes, (index, box) => {
             let boxId = this.mod.interactions.getCommentId(box)
             let self = this
+            let inputTag = jQuery(box).find('.comment-tags')
 
             //if this id is already initialized. continue
             if (this.lookupDOM.hasOwnProperty(boxId)) {
-                return true
+                let autcompleteInstance = inputTag.autocomplete("instance")
+                if (autcompleteInstance) {
+                    return
+                }
             }
 
-            this.lookupDOM[boxId] = jQuery(box).find('.comment-tags')
+            this.lookupDOM[boxId] = inputTag
                 .bind( "keydown", function( event ) {
                     if ( event.keyCode === jQuery.ui.keyCode.TAB &&
                         jQuery( this ).autocomplete( "instance" ).menu.active ) {
