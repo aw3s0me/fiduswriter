@@ -323,6 +323,7 @@ Equation.prototype.serializeDOM = (node, serializer) => {
         'data-equation': node.attrs.equation
     })
     katexRender(node.attrs.equation, dom)
+    dom.setAttribute('contenteditable', 'false')
     return dom
 }
 
@@ -480,7 +481,7 @@ Figure.register("command", "insert", {
 })
 
 
-export class CommentMark extends MarkType {
+class CommentMark extends MarkType {
     get attrs() {
         return {
             id: new Attribute
@@ -512,7 +513,7 @@ CommentMark.prototype.serializeDOM = (mark, serializer) => {
         'data-id': mark.attrs.id
     })
 }
-
+/*
 const commentIcon = {
     type: "icon", // TODO: use real comment icon
     width: 951,
@@ -548,7 +549,7 @@ CommentMark.register("command", "unset", {
         return true
     }
 })
-
+*/
 export const fidusSchema = new Schema(defaultSchema.spec.update({
     title: Title,
     metadatasubtitle: MetaDataSubtitle,

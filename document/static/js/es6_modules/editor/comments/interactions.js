@@ -72,17 +72,12 @@ export class ModCommentInteractions {
 
     }
 
-    // Create a new comment as the current user, and mark it as active.
+    // Create a temporary empty comment for the current user that is not shared
+    // with collaborators.
     createNewComment() {
-        let id = this.mod.store.addComment(
-            this.mod.editor.user.id,
-            this.mod.editor.user.name,
-            this.mod.editor.user.avatar,
-            new Date().getTime(),
-            '')
         this.mod.layout.deactivateAll()
-        this.mod.layout.activeCommentId = id
-        this.mod.editor.docInfo.changed = true
+        this.mod.store.addCommentDuringCreation()
+        this.mod.layout.activeCommentId = -1
         this.mod.layout.layoutComments()
     }
 
@@ -94,15 +89,33 @@ export class ModCommentInteractions {
     }
 
     deleteComment(id) {
-        // Handle the deletion of a comment.
-        this.mod.store.deleteComment(id, true)
-        this.mod.editor.docInfo.changed = true
+        if (id===-1) {
+            this.mod.layout.deactivateAll()
+        } else {
+            // Handle the deletion of a comment.
+            this.mod.store.deleteComment(id, true)
+            this.mod.editor.docInfo.changed = true
+        }
         this.mod.layout.layoutComments()
     }
 
     updateComment(id, commentText, commentIsMajor, tags) {
         // Save the change to a comment and mark that the document has been changed
-        this.mod.store.updateComment(id, commentText, commentIsMajor, tags)
+        if (id===-1) {
+            // This is a new comment. We need to get an ID for it if it has contents.
+            this.mod.store.addComment(
+                this.mod.editor.user.id,
+                this.mod.editor.user.name,
+                this.mod.editor.user.avatar,
+                new Date().getTime(), // We update the time to the time the comment was stored
+                commentText,
+                commentIsMajor,
+                this.mod.store.commentDuringCreation.referrer.from,
+                this.mod.store.commentDuringCreation.referrer.to
+            )
+        } else {
+            this.mod.store.updateComment(id, commentText, commentIsMajor, tags)
+        }
         this.mod.layout.deactivateAll()
         this.mod.layout.layoutComments()
     }
@@ -120,7 +133,7 @@ export class ModCommentInteractions {
             this.deleteComment(commentId)
         }
         this.mod.semantic.removeTagBox(commentId)
-        this.mod.semantic.
+        //this.mod.semantic.
     }
 
     cancelSubmitComment(cancelButton) {
