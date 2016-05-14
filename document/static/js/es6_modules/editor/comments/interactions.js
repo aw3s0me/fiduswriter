@@ -120,6 +120,7 @@ export class ModCommentInteractions {
             this.deleteComment(commentId)
         }
         this.mod.semantic.removeTagBox(commentId)
+        this.mod.semantic.
     }
 
     cancelSubmitComment(cancelButton) {

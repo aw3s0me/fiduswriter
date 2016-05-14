@@ -145,3 +145,11 @@ export let filterByUserBoxTemplate = _.template(`
         </select>
     </div>
 `)
+
+export let tagBoxTemplate = _.template(`
+    <div class="tag-box" title="`+gettext("Tags")+`">
+        <% _.each(tags, function(tag) { %>
+            <span class="badge badge-success"><%- tag.id %></span>
+        <% }) %>
+    </div>
+`)

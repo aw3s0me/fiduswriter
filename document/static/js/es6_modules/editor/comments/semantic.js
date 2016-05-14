@@ -115,6 +115,11 @@ export class ModCommentSemantic {
         return val.split( /;\s*/ )
     }
 
+    /**
+     * Check if tags are correct in input
+     * @param tagsIds
+     * @returns {boolean}
+     */
     validateTags(tagsIds) {
         for (let value in tagsIds) {
             if (!value || value === "" || value === " ") {
@@ -141,5 +146,13 @@ export class ModCommentSemantic {
         }
 
         return terms
+    }
+
+    /**
+     * Adding tags labels after submitting comment
+     * @param tags
+     */
+    addTagBoxtoHtml(tags) {
+        console.log(tags)
     }
 }
