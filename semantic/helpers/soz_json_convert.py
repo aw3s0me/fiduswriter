@@ -9,6 +9,7 @@ import os
 
 thesoz_ns = Namespace("http://lod.gesis.org/thesoz/ext/")
 thesoz_ttl_location = '../static/ttl/'
+thesoz_json_location = '../static/json/'
 
 def download_thesoz():
     thesoz_addr = 'http://www.etracker.de/lnkcnt.php?et=qPKGYV&url=http://www.gesis.org/fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip&lnkname=fileadmin/upload/dienstleistung/tools_standards/thesoz_skos_turtle.zip'
@@ -62,5 +63,8 @@ for row in query_res:
 
 skos_ttl.close()
 
-with open('../static/json/soz_lookup.json', 'w') as fp:
+if not os.path.exists(thesoz_json_location):
+    os.makedirs(thesoz_json_location)
+
+with open(thesoz_json_location + 'soz_lookup.json', 'w') as fp:
     json.dump(final_json, fp)
