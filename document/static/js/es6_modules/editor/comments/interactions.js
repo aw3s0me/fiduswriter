@@ -110,6 +110,7 @@ export class ModCommentInteractions {
                 new Date().getTime(), // We update the time to the time the comment was stored
                 commentText,
                 commentIsMajor,
+                tags,
                 this.mod.store.commentDuringCreation.referrer.from,
                 this.mod.store.commentDuringCreation.referrer.to
             )

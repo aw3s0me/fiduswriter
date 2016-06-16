@@ -173,6 +173,8 @@ class DocumentWS(BaseWebSocketHandler):
                 self.doc["comments"][id]["comment"] = cd["comment"]
                 if "review:isMajor" in cd:
                     self.doc["comments"][id]["review:isMajor"] = cd["review:isMajor"]
+                if "tags" in cd:
+                    self.doc["comments"][id]["tags"] = cd["tags"]
             elif cd["type"] == "add_answer":
                 comment_id = str(cd["commentId"])
                 if not "answers" in self.doc["comments"][comment_id]:
@@ -186,7 +188,7 @@ class DocumentWS(BaseWebSocketHandler):
                         self.doc["comments"][comment_id]["answers"].remove(answer)
             elif cd["type"] == "update_answer":
                 comment_id = str(cd["commentId"])
-                for answer in documenet["comments"][comment_id]["answers"]:
+                for answer in self.doc["comments"][comment_id]["answers"]:
                     if answer["id"] == cd["id"]:
                         answer["answer"] = cd["answer"]
             self.doc['comment_version'] += 1

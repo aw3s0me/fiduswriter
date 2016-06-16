@@ -121,17 +121,20 @@ export class ModCommentSemantic {
      * @returns {boolean}
      */
     validateTags(tagsIds) {
-        for (let value in tagsIds) {
+        let newTags = []
+        for (let value of tagsIds) {
             if (!value || value === "" || value === " ") {
                 continue
             }
 
-            if (!this.origData.hasOwnProperty(value)) {
-                return false
+            if (this.origData.hasOwnProperty(value)) {
+                newTags.push(value)
+                //return false
             }
         }
 
-        return true
+        return newTags
+        //return true
     }
 
     getTagsFromHtml(id) {
@@ -141,11 +144,11 @@ export class ModCommentSemantic {
 
         let values = this.lookupDOM[id].val()
         let terms = this.split(values)
-        if (!this.validateTags(terms)) {
-            return []
-        }
+        //if (!this.validateTags(terms)) {
+        //    return []
+        //}
 
-        return terms
+        return this.validateTags(terms)
     }
 
     /**

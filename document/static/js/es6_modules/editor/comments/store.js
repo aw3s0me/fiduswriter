@@ -49,9 +49,9 @@ export class ModCommentStore {
     }
 
     // Add a new comment to the comment database both remotely and locally.
-    addComment(user, userName, userAvatar, date, comment, isMajor, posFrom, posTo) {
+    addComment(user, userName, userAvatar, date, comment, isMajor, tags, posFrom, posTo) {
         let id = randomID()
-        this.addLocalComment(id, user, userName, userAvatar, date, comment, false, isMajor)
+        this.addLocalComment(id, user, userName, userAvatar, date, comment, false, isMajor, tags)
         this.unsent.push({
             type: "create",
             id: id
@@ -82,6 +82,7 @@ export class ModCommentStore {
             this.comments[id].comment = comment
             this.comments[id]['review:isMajor'] = commentIsMajor
             this.comments[id].tags = tags
+            console.log('Added tags at updateLocComment: ' + tags)
         }
         this.mod.layout.layoutComments()
     }
@@ -224,7 +225,8 @@ export class ModCommentStore {
                     type: "update",
                     id: found.id,
                     comment: found.comment,
-                    'review:isMajor': found['review:isMajor']
+                    'review:isMajor': found['review:isMajor'],
+                    tags: found['tags']
                 })
             } else if (event.type == "create") {
                 let found = this.comments[event.id]
@@ -238,7 +240,8 @@ export class ModCommentStore {
                     date: found.date,
                     comment: found.comment,
                     answers: found.answers,
-                    'review:isMajor': found['review:isMajor']
+                    'review:isMajor': found['review:isMajor'],
+                    tags: found['tags']
                 })
             } else if (event.type == "add_answer") {
                 let found = this.comments[event.id]
@@ -289,9 +292,11 @@ export class ModCommentStore {
             if (event.type == "delete") {
                 this.deleteLocalComment(event.id)
             } else if (event.type == "create") {
-                this.addLocalComment(event.id, event.user, event.userName, event.userAvatar, event.date, event.comment, event['review:isMajor'])
+                this.addLocalComment(event.id, event.user, event.userName, event.userAvatar, event.date, event.comment, event['review:isMajor'], event['tags'])
+                console.log('Recv at store tags at create' + event['tags'])
             } else if (event.type == "update") {
-                this.updateLocalComment(event.id, event.comment, event['review:isMajor'])
+                this.updateLocalComment(event.id, event.comment, event['review:isMajor'], event['tags'])
+                console.log('Recv at store tags at update' + event['tags'])
             } else if (event.type == "add_answer") {
                 this.addLocalAnswer(event.commentId, event)
             } else if (event.type == "remove_answer") {

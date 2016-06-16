@@ -177,7 +177,7 @@ export class Editor {
         _.each(this.doc.comments, function(comment) {
             that.mod.comments.store.addLocalComment(comment.id, comment.user,
                 comment.userName, comment.userAvatar, comment.date, comment.comment,
-                comment.answers, comment['review:isMajor'])
+                comment.answers, comment['review:isMajor'], comment['tags'])
         })
         this.mod.comments.store.on("mustSend", function() {
             that.mod.collab.docChanges.sendToCollaborators()
